@@ -27,7 +27,33 @@ func main() {
 		sum += max - min
 	}
 
-	fmt.Println(sum)
+	fmt.Println("1st star: ", sum)
+
+	sum = 0
+	for _, line := range lines {
+		nums := strings.Split(string(line), "\t")
+		fmt.Println(nums)
+		
+		sum += noCoprime(nums)
+	}
+	fmt.Println("2nd star: ", sum)
+}
+
+func noCoprime(nums []string) int {
+	for i, nis := range nums {
+		for j, njs := range nums {
+			if i != j {
+				ni, _ := strconv.Atoi(nis)
+				nj, _ := strconv.Atoi(njs)
+				if(ni % nj == 0) {
+					return ni / nj
+				} else if(nj % ni == 0) {
+					return nj /ni
+				}
+			}
+		}
+	}
+	panic(fmt.Sprintf("All numbers in a row coprime! %v", nums))
 }
 
 func maxF(a, b int) int {
