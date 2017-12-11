@@ -12,9 +12,7 @@ func main() {
 	in := getInput()
 
 	checksums := make(map[uint64]int)
-	i := 1
-	checksums[checksum(in)] = i
-	i++
+	checksums[checksum(in)] = len(checksums) + 1
 	maxIdx := findMaxIdx(in)
 
 	for {
@@ -27,11 +25,10 @@ func main() {
 		sum := checksum(in)
 		if checksums[sum] > 0 {
 			fmt.Println("1st star: ", len(checksums))
-			fmt.Println("2nd star: ", i-checksums[sum])
+			fmt.Println("2nd star: ", len(checksums)+1-checksums[sum])
 			return
 		} else {
-			checksums[sum] = i
-			i++
+			checksums[sum] = len(checksums) + 1
 		}
 
 		maxIdx = findMaxIdx(in)
@@ -39,9 +36,7 @@ func main() {
 }
 
 func checksum(list []int) uint64 {
-	var sum, base uint64
-	sum = 0
-	base = 17
+	var sum, base uint64 = 0, 17
 	for _, i := range list {
 		sum *= base
 		sum += uint64(i)
