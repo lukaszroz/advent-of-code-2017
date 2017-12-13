@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,17 +25,34 @@ func main() {
 	fmt.Println("Start 2: ", findDelay(input))
 }
 
+type tuple struct {
+	key, period int
+}
+
+type byPeriod []tuple
+
+func (t byPeriod) Len() int           { return len(t) }
+func (t byPeriod) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
+func (t byPeriod) Less(i, j int) bool { return t[i].period < t[j].period }
+
 func findDelay(input map[int]int) int {
+	tuples := make([]tuple, len(input))
+	i := 0
+	for key, val := range input {
+		tuples[i] = tuple{key, (val - 1) * 2}
+		i++
+	}
+	sort.Sort(byPeriod(tuples))
 	for delay := 0; ; delay++ {
-		if !caught(input, delay) {
+		if !caught(tuples, delay) {
 			return delay
 		}
 	}
 }
 
-func caught(input map[int]int, delay int) bool {
-	for key, val := range input {
-		if (key+delay)%((val-1)*2) == 0 {
+func caught(input []tuple, delay int) bool {
+	for _, tup := range input {
+		if (tup.key+delay)%(tup.period) == 0 {
 			return true
 		}
 	}
