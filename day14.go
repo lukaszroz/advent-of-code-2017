@@ -4,26 +4,34 @@ import (
 	"fmt"
 	"math/bits"
 	"os"
+	"sync"
+	"sync/atomic"
 )
 
 func main() {
 	input := os.Args[1]
 	grid := make([][]bool, 128)
-	usedSum := 0
+	var usedSum int32 = 0
+	var wg sync.WaitGroup
 	for i := 0; i < 128; i++ {
 		grid[i] = make([]bool, 128)
-		j := 0
-		for _, b := range knotHash(fmt.Sprintf("%s-%d", input, i)) {
-			usedSum += bits.OnesCount8(b)
-			for _, bit := range fmt.Sprintf("%08b", b) {
-				if bit == '1' {
-					grid[i][j] = true
+		wg.Add(1)
+		go func(row []bool, ones *int32, toHash string) {
+			defer wg.Done()
+			j := 0
+			for _, b := range knotHash(toHash) {
+				atomic.AddInt32(ones, int32(bits.OnesCount8(b)))
+				for _, bit := range fmt.Sprintf("%08b", b) {
+					if bit == '1' {
+						row[j] = true
+					}
+					j++
 				}
-				j++
 			}
-		}
+		}(grid[i], &usedSum, fmt.Sprintf("%s-%d", input, i))
 	}
 
+	wg.Wait()
 	fmt.Println("Star 1: ", usedSum)
 	fmt.Println("Star 1: ", countRegions(grid))
 }
