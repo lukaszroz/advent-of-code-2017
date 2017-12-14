@@ -16,24 +16,26 @@ func main() {
 	for i := 0; i < 128; i++ {
 		grid[i] = make([]bool, 128)
 		wg.Add(1)
-		go func(row []bool, ones *int32, toHash string) {
-			defer wg.Done()
-			j := 0
-			for _, b := range knotHash(toHash) {
-				atomic.AddInt32(ones, int32(bits.OnesCount8(b)))
-				for _, bit := range fmt.Sprintf("%08b", b) {
-					if bit == '1' {
-						row[j] = true
-					}
-					j++
-				}
-			}
-		}(grid[i], &usedSum, fmt.Sprintf("%s-%d", input, i))
+		go processRow(grid[i], &usedSum, fmt.Sprintf("%s-%d", input, i), &wg)
 	}
 
 	wg.Wait()
 	fmt.Println("Star 1: ", usedSum)
-	fmt.Println("Star 1: ", countRegions(grid))
+	fmt.Println("Star 2: ", countRegions(grid))
+}
+
+func processRow(row []bool, onesCount *int32, hashInput string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	j := 0
+	for _, b := range knotHash(hashInput) {
+		atomic.AddInt32(onesCount, int32(bits.OnesCount8(b)))
+		for _, bit := range fmt.Sprintf("%08b", b) {
+			if bit == '1' {
+				row[j] = true
+			}
+			j++
+		}
+	}
 }
 
 func countRegions(grid [][]bool) int {
