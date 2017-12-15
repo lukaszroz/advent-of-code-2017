@@ -36,7 +36,7 @@ func count(startA, startB, filterA, filterB int, times int, channel bool) int {
 func next(n, factor, filter int) int {
 	n *= factor
 	n %= 2147483647
-	for n%filter != 0 {
+	for n&(filter-1) != 0 {
 		n *= factor
 		n %= 2147483647
 	}
@@ -49,7 +49,7 @@ type newGenerator func(int, int, int) generator
 func newGeneratorClosure(n, factor, filter int) generator {
 	return func() int {
 		n = next(n, factor, filter)
-		return n % 65536
+		return n & 0xffff
 	}
 }
 
@@ -64,7 +64,7 @@ func newGeneratorChannel(start, factor, filter int) generator {
 func generatorRoutine(n, factor, filter int, c chan int) {
 	for {
 		n = next(n, factor, filter)
-		c <- n % 65536
+		c <- n & 0xffff
 	}
 }
 
