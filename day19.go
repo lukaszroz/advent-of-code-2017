@@ -12,12 +12,7 @@ var steps int = 1
 func main() {
 	diagram := getInput()
 	path := make([]byte, 10)
-	for idx, b := range diagram[0] {
-		if b == '|' {
-			goSouth(1, idx, diagram, &path)
-			break
-		}
-	}
+	goSouth(1, strings.IndexRune(diagram[0], '|'), diagram, &path)
 	fmt.Println("Star 1:", string(path))
 	fmt.Println("Star 2:", steps)
 }
